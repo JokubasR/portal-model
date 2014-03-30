@@ -4,11 +4,12 @@ library(tm)
 library(glmnet)
 d <- read.csv("data/comments.csv", stringsAsFactors=F, encoding="UTF-8")
 
-
+some.wild.characters <- 
+  paste(c(enc2utf8("[[:punct:]]|[[:cntrl:]]|[[:digit:]]"),
+        strsplit(intToUtf8(8210:8230),"")[[1]]),collapse="|")
 textCleanerRegex <- function(string,
-                        gsub.regex="[[:punct:]]|[[:cntrl:]]|[[:digit:]]|„|“|—",
-                        conv.tolower=TRUE){
-  
+                             gsub.regex=some.wild.characters,
+                             conv.tolower=TRUE){
   out <- str_trim(
     stripWhitespace(
       gsub(gsub.regex, " ", string)))
@@ -19,8 +20,13 @@ textCleanerRegex <- function(string,
 }
 cp <- Corpus(VectorSource(textCleanerRegex(d$CommentText),
                           encoding="UTF-8"))
+write.csv(sort(unique(unlist(lapply(cp, strsplit, " ")))),
+          file="dictionary.csv",
+          row.names=F, fileEncoding="UTF-8")
+dtm <- DocumentTermMatrix(cp)
+colnames(dtm)[1:100]
 dtm <- removeSparseTerms(DocumentTermMatrix(cp), 0.99)
-
+grep(intToUtf8(8221), colnames(dtm)[1:100])
 cv.fit <- 
   cv.glmnet(x=sparseMatrix(i=dtm$i, j=dtm$j, x=dtm$v, dimnames=dtm$dimnames),
             y=d$Upvotes-d$DownVotes,
