@@ -1,7 +1,8 @@
 # coding=utf-8
+
 # http://norvig.com/spell-correct.html
 import re, collections
-
+import pdb
 def words(text):
     return re.findall('[a-ž]+', text.lower())
 
@@ -30,21 +31,27 @@ def edits1(word, alphabet = alphabet_all):
    return set(deletes + transposes + replaces + inserts)
 
 def known_edits2(word):
-    return set(e2.encode('utf8') for e1 in edits1(word) for e2 in edits1(e1) if e2.encode('utf8') in NWORDS)
-
+    try:
+        return set(e2.encode('utf-8') for e1 in edits1(word) for e2 in edits1(e1) if e2.encode('utf-8') in NWORDS)
+    except:
+        return set()
 def editsLT(word, alphabet = alphabet_lt):
    splits     = [(word[:i], word[i:]) for i in range(len(word) + 1)]
    replaces   = [a + c + b[1:] for a, b in splits for c in alphabet if b]
    return set(replaces)
 
 def known(words):
-    return set(w.encode('utf8') for w in words if w.encode('utf8') in NWORDS)
+    return set(w.encode('utf-8') for w in words if w.encode('utf-8') in NWORDS)
 
 # 1 stage leaves the word if it is known
 # 2 stage edits letters by trying modifications with only lithuanian specific symbols without changing length of the word
 # 3, 4 stages are all other kind of edits
 def correct(word):
-    candidates = known([word]) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set[word]
+    #pdb.set_trace()
+    candidates = known([word]) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set([word])
     # debug
     # print candidates
-    return max(candidates, key=NWORDS.get)
+    if len(candidates) == 0:
+        return wordw
+    else:
+        return max(candidates, key=NWORDS.get)

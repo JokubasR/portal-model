@@ -2,41 +2,28 @@
 
 __author__ = 'e.dunajevas'
 
-import enchant
 import re
 import pandas as pd
 from correctDidYouMean import correct
-correct('zodis')
-def suggest_lt(word):
-    """
-    suggests lithuanian word correction
-    @param word: single sting
-    @return: corrected word
-    """
-    d = enchant.Dict("lt_LT")
-    if d.check(word):
-        return(word.lower())
-    else:
-        if word[0] == 'w':
-            word = 'v' + word[1:]
-        if word[0] == 'x':
-            word = "ch" + word[1:]
-        if word[0] == '2' and len(word) != 1:
-            word = "du" + word[1:]
-        out = d.suggest(word)
-        if len(out) == 0:
-            return(word)
-        else:
-            return(out[0])
 
-comments = pd.read_csv('data/comments.csv', encoding='utf8')
+def correct_base(word):
+    #obvious corrections
+    word = word.lower()
+    word = re.sub('w', 'v', word)
+    word = re.sub('x', 'ch', word)
+    word = re.sub('2', 'du', word)
+    #removes double characters like tooooks -> toks
+    word = re.sub(r'([a-z])\1+', r'\1', word)
+    return correct(word)
 
-for i in range(1, 1000):
+comments = pd.read_csv('data/comments.csv', encoding='utf-8')
+#import correctDidYouMean
+#correctDidYouMean.known(['pakaisioji'])
+for i in range(15, 16):
     print i
-    print comments['CommentText'][i]
     sentence = re.sub(u"[^a-zA-Z0-9ą-žĄ-Ž]+", ' ', comments['CommentText'][i])
     print sentence
-    out = ''
+    out = []
     for word in sentence.strip(' \t\n\r').split(" "):
-        out.join(suggest_lt(word))
-    print out
+        out.append(correct_base(word))
+    #print " ".join(out)
