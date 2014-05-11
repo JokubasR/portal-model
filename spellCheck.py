@@ -5,7 +5,8 @@ __author__ = 'e.dunajevas'
 import enchant
 import re
 import pandas as pd
-import pdb
+from correctDidYouMean import correct
+correct('zodis')
 def suggest_lt(word):
     """
     suggests lithuanian word correction
@@ -14,7 +15,7 @@ def suggest_lt(word):
     """
     d = enchant.Dict("lt_LT")
     if d.check(word):
-        return(word)
+        return(word.lower())
     else:
         if word[0] == 'w':
             word = 'v' + word[1:]

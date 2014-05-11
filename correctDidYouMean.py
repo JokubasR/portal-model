@@ -1,6 +1,5 @@
 # coding=utf-8
 # http://norvig.com/spell-correct.html
-
 import re, collections
 
 def words(text):
@@ -45,7 +44,6 @@ def known(words):
 # 2 stage edits letters by trying modifications with only lithuanian specific symbols without changing length of the word
 # 3, 4 stages are all other kind of edits
 def correct(word):
-    w
     candidates = known([word]) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set[word]
     # debug
     # print candidates
