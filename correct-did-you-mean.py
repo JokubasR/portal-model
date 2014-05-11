@@ -12,7 +12,9 @@ def train(features):
         model[f] += 1
     return model
 
-NWORDS = train(words(file('dictionaries/dictionary.txt').read()))
+from_articles = words(file('dictionaries/dictionary.txt').read())
+swear_words = words(file('dictionaries/swear-words.txt').read())
+NWORDS = train(from_articles + swear_words)
 #NWORDS = train(words(file('data/debug.txt').read()))
 
 alphabet_all = u"aąbcčdeęėfghiįjklmnopqrsštuųūvwxyzž"
@@ -43,6 +45,8 @@ def known(words):
 # 2 stage edits letters by trying modifications with only lithuanian specific symbols without changing length of the word
 # 3, 4 stages are all other kind of edits
 def correct(word):
+    w
     candidates = known([word]) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set[word]
-    print candidates
+    # debug
+    # print candidates
     return max(candidates, key=NWORDS.get)
