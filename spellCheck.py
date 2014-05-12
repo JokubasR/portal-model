@@ -4,6 +4,7 @@ __author__ = 'e.dunajevas'
 
 import re
 import pandas as pd
+import pdb
 from correctDidYouMean import correct
 
 def correct_base(word):
@@ -19,11 +20,12 @@ def correct_base(word):
 comments = pd.read_csv('data/comments.csv', encoding='utf-8')
 #import correctDidYouMean
 #correctDidYouMean.known(['pakaisioji'])
-for i in range(15, 16):
+for i in range(1, 160):
     print i
     sentence = re.sub(u"[^a-zA-Z0-9ą-žĄ-Ž]+", ' ', comments['CommentText'][i])
     print sentence
     out = []
     for word in sentence.strip(' \t\n\r').split(" "):
+        #pdb.set_trace()
         out.append(correct_base(word))
-    #print " ".join(out)
+    print ' '.join(out)

@@ -3,8 +3,17 @@
 # http://norvig.com/spell-correct.html
 import re, collections
 import pdb
+alphabet_all = u"aąbcčdeęėfghiįjklmnopqrsštuųūvwxyzž"
+alphabet_lt = u"ąčęėįšųūzž"
+
 def words(text):
-    return re.findall('[a-ž]+', text.lower())
+    text = text.decode('utf-8')
+    words = re.findall(u'[aąbcčdeęėfghiįjklmnopqrsštuųūvwxyzž]+', text.lower())
+    #if words[0][0] == '\xbb' and words[0][1] == '\xbf':
+    #    words[0] = words[0][2:]
+    #return [w.decode('utf-8') for w in words]
+    return words
+#[w.decode('utf-8') for w in words[582:583]]
 
 def train(features):
     model = collections.defaultdict(lambda: 1)
@@ -15,11 +24,6 @@ def train(features):
 from_articles = words(file('dictionaries/dictionary.txt').read())
 swear_words = words(file('dictionaries/swear-words.txt').read())
 NWORDS = train(from_articles + swear_words)
-#NWORDS = train(words(file('data/debug.txt').read()))
-
-alphabet_all = u"aąbcčdeęėfghiįjklmnopqrsštuųūvwxyzž"
-alphabet_lt = u"ąčęėįšųūzž"
-
 
 
 def edits1(word, alphabet = alphabet_all):
@@ -32,7 +36,7 @@ def edits1(word, alphabet = alphabet_all):
 
 def known_edits2(word):
     try:
-        return set(e2.encode('utf-8') for e1 in edits1(word) for e2 in edits1(e1) if e2.encode('utf-8') in NWORDS)
+        return set(e2 for e1 in edits1(word) for e2 in edits1(e1) if e2 in NWORDS)
     except:
         return set()
 def editsLT(word, alphabet = alphabet_lt):
@@ -41,7 +45,7 @@ def editsLT(word, alphabet = alphabet_lt):
    return set(replaces)
 
 def known(words):
-    return set(w.encode('utf-8') for w in words if w.encode('utf-8') in NWORDS)
+    return set(w for w in words if w in NWORDS)
 
 # 1 stage leaves the word if it is known
 # 2 stage edits letters by trying modifications with only lithuanian specific symbols without changing length of the word
@@ -52,6 +56,7 @@ def correct(word):
     # debug
     # print candidates
     if len(candidates) == 0:
-        return wordw
+        return word
     else:
         return max(candidates, key=NWORDS.get)
+
