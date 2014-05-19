@@ -1,3 +1,4 @@
+
 # -*- coding: utf-8 -*-
 
 __author__ = 'e.dunajevas'
@@ -5,27 +6,44 @@ __author__ = 'e.dunajevas'
 import re
 import pandas as pd
 import pdb
+import distance
 from correctDidYouMean import correct
 
 def correct_base(word):
     #obvious corrections
-    word = word.lower()
-    word = re.sub('w', 'v', word)
-    word = re.sub('x', 'ch', word)
-    word = re.sub('2', 'du', word)
-    #removes double characters like tooooks -> toks
-    word = re.sub(r'([a-z])\1+', r'\1', word)
-    return correct(word)
+    # pdb.set_trace()
+    if word.isnumeric() or (word != u'į' and len(word) == 1):
+        return word
+    else:
+        original = word
+        word = word.lower()
+        word = re.sub(u'w', u'v', word)
+        word = re.sub(u'2', u'du', word)
+        word = re.sub(u'sh', u'š', word)
+        #removes double characters like tooooks -> toks
+        word_wd = re.sub(r'([a-z])\1+', r'\1', word)
+        word = correct(word_wd)
+        #if distance.levenshtein(word.lower()[0:5], word_wd.lower()[0:5]) > 2:
+        #    word = u'\''+original+u'\''
+        if original[0].isupper():
+            word = word.title()
+        if original.isupper():
+            word = word.upper()
+        return word
 
 comments = pd.read_csv('data/comments.csv', encoding='utf-8')
-#import correctDidYouMean
-#correctDidYouMean.known(['pakaisioji'])
-for i in range(1, 160):
+comments['CommentTextChecked'] = 'NA'
+for i in range(0, len(comments)):
     print i
     sentence = re.sub(u"[^a-zA-Z0-9ą-žĄ-Ž]+", ' ', comments['CommentText'][i])
-    print sentence
+    sentence = re.sub(u"quot |quo ", "", sentence)
     out = []
-    for word in sentence.strip(' \t\n\r').split(" "):
-        #pdb.set_trace()
-        out.append(correct_base(word))
-    print ' '.join(out)
+    try:
+        for word in sentence.strip(' \t\n\r').split(" "):
+            #pdb.set_trace()
+            out.append(correct_base(word))
+        comments['CommentTextChecked'][i] = ' '.join(out)
+    except IndexError:
+        comments['CommentTextChecked'][i] = 'NA'
+
+comments.to_csv('comment_spellchecked.csv', encoding='utf8')
