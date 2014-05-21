@@ -3,7 +3,7 @@
 
 # http://norvig.com/spell-correct.html
 import re, collections
-import pdb
+#import pdb
 alphabet_all = u"aąbcčdeęėfghiįjklmnopqrsštuųūvwxyzž"
 alphabet_lt = u"aącčeęėiįysšuųūzž"
 
@@ -86,9 +86,12 @@ def known(words):
 # 2 stage edits letters by trying modifications with only lithuanian specific symbols without changing length of the word
 # 3, 4 stages are all other kind of edits
 def correct(word):
-    candidates = known([word]) or known(editsLTx(word)) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set([word])
-    # debug
-    # print candidates
+    if len(word) > 15:
+        candidates = known([word]) or known(editsLTx(word)) or known(edits1(word)) or known_edits2(word) or set([word])
+    else:
+        candidates = known([word]) or known(editsLTx(word)) or known(editsLT(word)) or known(edits1(word)) or known_edits2(word) or set([word])
+        # debug
+        # print candidates
     if len(candidates) == 0:
         return word
     else:

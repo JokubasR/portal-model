@@ -5,8 +5,8 @@ __author__ = 'e.dunajevas'
 
 import re
 import pandas as pd
-import pdb
-import distance
+#import pdb
+#import distance
 from correctDidYouMean import correct
 
 def correct_base(word):
@@ -21,7 +21,7 @@ def correct_base(word):
         word = re.sub(u'2', u'du', word)
         word = re.sub(u'sh', u'š', word)
         #removes double characters like tooooks -> toks
-        word_wd = re.sub(r'([a-z])\1+', r'\1', word)
+        word_wd = re.sub(ur'([a-ząčęęėįšųūž])\1+', r'\1', word)
         word = correct(word_wd)
         #if distance.levenshtein(word.lower()[0:5], word_wd.lower()[0:5]) > 2:
         #    word = u'\''+original+u'\''
@@ -31,19 +31,20 @@ def correct_base(word):
             word = word.upper()
         return word
 
-comments = pd.read_csv('data/comments.csv', encoding='utf-8')
+comments = pd.read_csv('data/commentsNEW.csv', encoding='utf-8')
 comments['CommentTextChecked'] = 'NA'
 for i in range(0, len(comments)):
+#for i in range(23200, 23300):
+    #if 0 == i % 100:
     print i
-    sentence = re.sub(u"[^a-zA-Z0-9ą-žĄ-Ž]+", ' ', comments['CommentText'][i])
-    sentence = re.sub(u"quot |quo ", "", sentence)
-    out = []
     try:
+        sentence = re.sub(u"[^a-zA-Z0-9ą-žĄ-Ž]+", ' ', comments['CommentText'][i])
+        sentence = re.sub(u"quot |quo ", "", sentence)
+        out = []
         for word in sentence.strip(' \t\n\r').split(" "):
             #pdb.set_trace()
             out.append(correct_base(word))
         comments['CommentTextChecked'][i] = ' '.join(out)
-    except IndexError:
-        comments['CommentTextChecked'][i] = 'NA'
-
+    except (IndexError, TypeError) as err:
+            comments['CommentTextChecked'][i] = 'NA'
 comments.to_csv('comment_spellchecked.csv', encoding='utf8')
